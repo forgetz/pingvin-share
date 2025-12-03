@@ -3,12 +3,14 @@ FROM node:22-alpine AS frontend-dependencies
 WORKDIR /opt/app
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
+RUN npm update glob
 
 # Stage 2: Build frontend
 FROM node:22-alpine AS frontend-builder
 WORKDIR /opt/app
 COPY ./frontend .
 COPY --from=frontend-dependencies /opt/app/node_modules ./node_modules
+RUN npm update glob
 RUN npm run build
 
 # Stage 3: Backend dependencies
@@ -17,6 +19,7 @@ RUN apk add --no-cache python3
 WORKDIR /opt/app
 COPY backend/package.json backend/package-lock.json ./
 RUN npm ci
+RUN npm update glob
 
 # Stage 4: Build backend
 FROM node:22-alpine AS backend-builder
